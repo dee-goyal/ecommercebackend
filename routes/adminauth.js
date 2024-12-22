@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const Seller = require('../models/seller'); // Adjust the path to your Seller schema
+const authorize = require('../middleware/authorize'); // Add the middleware
 const router = express.Router();
 
 // Seller Login
@@ -48,11 +49,15 @@ router.post('/login', async (req, res) => {
         details: 'Incorrect password provided'
       });
     }
+
     // Update loggedIn status
     seller.loggedIn = 'loggedin';
     await seller.save();
+
     // Store sellerId in session
     req.session.sellerId = sellerId;
+    req.user = { role: seller.role }; // Add the role to the request object
+
     res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -98,7 +103,8 @@ router.post('/seller/signup', async (req, res) => {
       phoneNumber: phoneNumber,
       businessName: 'Not Available',
       businessAddress: 'Not Available',
-      businessType: 'Not Available'
+      businessType: 'Not Available',
+      role: 'seller' // Default role
     });
 
     await seller.save();
@@ -193,6 +199,11 @@ router.post('/logout', async (req, res) => {
       details: error.message
     });
   }
+});
+
+// Apply middleware to routes that require role-based access control
+router.get('/seller-dashboard', authorize(['seller', 'owner']), (req, res) => {
+  res.send('Welcome to Seller Dashboard');
 });
 
 module.exports = router;
