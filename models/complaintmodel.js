@@ -1,12 +1,27 @@
-// complaintModel.js
 const mongoose = require('mongoose');
 
-const complaintsSchema = new mongoose.Schema({
-  complaintNumber: String,
-  name: String,
-  email: String,
-  message: String,
-  userType: String,
+const complaintSchema = new mongoose.Schema({
+  complaintNumber: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  name: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true
+  },
+  message: {
+    type: String,
+    required: true
+  },
+  userType: {
+    type: String,
+    required: true
+  },
   status: {
     type: String,
     default: 'Pending'
@@ -17,6 +32,5 @@ const complaintsSchema = new mongoose.Schema({
   }
 });
 
-const Complaint = mongoose.model('Complaint', complaintsSchema);
-
+const Complaint = mongoose.model('Complaint', complaintSchema);
 module.exports = Complaint;
