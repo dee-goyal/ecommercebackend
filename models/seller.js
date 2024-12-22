@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
 
 const SellerSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -24,4 +25,27 @@ SellerSchema.pre('save', async function (next) {
   next();
 });
 
-module.exports = mongoose.model('Seller', SellerSchema);
+// Send Verification Email
+SellerSchema.methods.sendVerificationEmail = async function () {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'your-email@gmail.com',
+      pass: 'your-email-password'
+    }
+  });
+
+  const verificationLink = `http://yourdomain.com/verify-email/${this.sellerId}`;
+  const mailOptions = {
+    from: 'your-email@gmail.com',
+    to: this.email,
+    subject: 'Email Verification',
+    text: `Click the link to verify your email: ${verificationLink}`
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
+const Seller = mongoose.model('Seller', SellerSchema);
+
+module.exports = Seller;
