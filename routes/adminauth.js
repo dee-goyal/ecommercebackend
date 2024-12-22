@@ -4,6 +4,35 @@ const Seller = require('../models/seller'); // Adjust the path to your Seller sc
 const authorize = require('../middleware/authorize'); // Add the middleware
 const router = express.Router();
 
+const verifySeller = async (req, res, next) => {
+  const seller = await Seller.findById(req.session.sellerId);
+  if (!seller) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  req.seller = seller;
+  next();
+};
+
+// Route to add a product
+router.post('/add-product', verifySeller, async (req, res) => {
+  try {
+    const product = await req.seller.addProduct(req.body);
+    res.status(201).json(product);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Route to remove a product
+router.delete('/remove-product/:id', verifySeller, async (req, res) => {
+  try {
+    const product = await req.seller.removeProduct(req.params.id);
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // Seller Login
 router.post('/login', async (req, res) => {
   try {
