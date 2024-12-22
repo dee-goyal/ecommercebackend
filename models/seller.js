@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
+const Product = require('./product'); // Assuming the Product model is in the same directory
 
 const SellerSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -15,7 +16,7 @@ const SellerSchema = new mongoose.Schema({
   businessType: { type: String, required: true },
   otp: { type: String },
   loggedIn: { type: String, enum: ['loggedin', 'loggedout'], default: 'loggedout' },
-  role: { type: String, enum: ['seller', 'owner'], required: true, default: 'seller' } // Added role field
+  role: { type: String, enum: ['seller', 'owner'], required: true, default: 'seller' }
 });
 
 // Hash password before saving
@@ -45,6 +46,20 @@ SellerSchema.methods.sendVerificationEmail = async function () {
   };
 
   await transporter.sendMail(mailOptions);
+};
+
+// Add a product
+SellerSchema.methods.addProduct = async function (productData) {
+  const product = new Product({ ...productData, sellerId: this._id });
+  await product.save();
+  return product;
+};
+
+// Remove a product
+SellerSchema.methods.removeProduct = async function (productId) {
+  const product = await Product.findOneAndDelete({ _id: productId, sellerId: this._id });
+  if (!product) throw new Error('Product not found or not authorized');
+  return product;
 };
 
 const Seller = mongoose.model('Seller', SellerSchema);
