@@ -6,12 +6,23 @@ const CreateProduct = () => {
   const [images, setImages] = useState(['']);
   const [category, setCategory] = useState('');
   const [rating, setRating] = useState(0);
+    const [Desription, setDescription] = useState('');
 
   const handleImageChange = (index, value) => {
     const newImages = [...images];
     newImages[index] = value;
     setImages(newImages);
   };
+
+  const ProductSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  price: { type: Number, required: true },
+  category: { type: String, required: true },
+  rating: { type: Number, default: 0 },
+  images: { type: [String], default: [] },
+  description: { type: String, required: true }  // Add this line
+});
+
 
   const addImageField = () => {
     setImages([...images, '']);
