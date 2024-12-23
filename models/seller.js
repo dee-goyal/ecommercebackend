@@ -37,6 +37,8 @@ SellerSchema.methods.sendVerificationEmail = async function () {
     }
   });
 
+  
+
   const verificationLink = `http://yourdomain.com/verify-email/${this.sellerId}`;
   const mailOptions = {
     from: 'your-email@gmail.com',
@@ -48,6 +50,7 @@ SellerSchema.methods.sendVerificationEmail = async function () {
   await transporter.sendMail(mailOptions);
 };
 
+// Add a product
 // Add a product
 SellerSchema.methods.addProduct = async function (productData) {
   const product = new Product({ ...productData, sellerId: this._id });
